@@ -19,8 +19,6 @@ import (
 type Server struct {
 	port int
 
-	// db *gorm.DB
-
 	users *models.UserModel
 }
 
@@ -31,7 +29,7 @@ func NewServer() *http.Server {
 		panic("failed to connect database")
 	}
 
-	db.AutoMigrate(&models.User{})
+	db.AutoMigrate(&models.DatabaseUser{})
 
 	NewServer := Server{
 		port:  port,
@@ -77,7 +75,7 @@ func (s *Server) createUser(w http.ResponseWriter, r *http.Request) {
 		log.Printf("error parsing time: ", err)
 	}
 
-	err = s.users.Insert(models.User{
+	err = s.users.Insert(models.DatabaseUser{
 		ID:          params.ID,
 		Name:        params.Name,
 		Email:       params.Email,
@@ -96,5 +94,5 @@ func (s *Server) getUser(w http.ResponseWriter, r *http.Request) {
 		log.Printf("unable to get user from db: %v", err)
 	}
 
-	respondWithJSON(w, http.StatusOK, user)
+	respondWithJSON(w, http.StatusOK, models.DatabaseUserToResponseUser(user))
 }
