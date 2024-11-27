@@ -1,6 +1,7 @@
 package server
 
 import (
+	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
@@ -56,13 +57,32 @@ func (s *Server) routes() *http.ServeMux {
 }
 
 func (s *Server) createUser(w http.ResponseWriter, r *http.Request) {
-	parsedTim, err := time.Parse("2006-01-02T15:04:05-07:00", "2020-01-01T12:12:34+00:00")
+	type parameters struct {
+		ID          string `json:"id"`
+		Name        string `json:"name"`
+		Email       string `json:"email"`
+		DateOfBirth string `json:"date_of_birth"`
+	}
+	decoder := json.NewDecoder(r.Body)
+	params := parameters{}
+	err := decoder.Decode(&params)
+	if err != nil {
+		log.Printf("Unable to parse request body: %v", err)
+		respondWithError(w, http.StatusBadRequest, "unable to parse request body")
+		return
+	}
+
+	parsedTime, err := time.Parse("2006-01-02T15:04:05-07:00", params.DateOfBirth)
 	if err != nil {
 		log.Printf("error parsing time: ", err)
 	}
 
-	newUser := models.User{ID: "ca3ae13c-3c97-49fc-b4bb-86f04d934142", Name: "Joseph", Email: "email@gmail.com", DateOfBirth: parsedTim}
-	err = s.users.Insert(newUser)
+	err = s.users.Insert(models.User{
+		ID:          params.ID,
+		Name:        params.Name,
+		Email:       params.Email,
+		DateOfBirth: parsedTime,
+	})
 	if err != nil {
 		log.Printf("unable to create User: %v", err)
 	}
@@ -70,7 +90,8 @@ func (s *Server) createUser(w http.ResponseWriter, r *http.Request) {
 	respondWithJSON(w, http.StatusCreated, struct{}{})
 }
 func (s *Server) getUser(w http.ResponseWriter, r *http.Request) {
-	user, err := s.users.GetOne("ca2ae13c-3c97-49fc-b4bb-86f04d934142")
+	id := r.PathValue("id")
+	user, err := s.users.GetOne(id)
 	if err != nil {
 		log.Printf("unable to get user from db: %v", err)
 	}
