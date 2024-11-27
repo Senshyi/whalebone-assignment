@@ -9,6 +9,7 @@ import (
 	"strconv"
 	"time"
 	"whalebone-assignment/internal/models"
+	"whalebone-assignment/internal/validator"
 
 	_ "github.com/joho/godotenv/autoload"
 
@@ -60,6 +61,7 @@ func (s *Server) createUser(w http.ResponseWriter, r *http.Request) {
 		Name        string `json:"name"`
 		Email       string `json:"email"`
 		DateOfBirth string `json:"date_of_birth"`
+		validator.Validator
 	}
 	decoder := json.NewDecoder(r.Body)
 	params := parameters{}
@@ -70,9 +72,18 @@ func (s *Server) createUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	params.Check(validator.NotBlank(params.Name), "name", "field name cannot be empty")
+	params.Check(validator.MaxChars(params.Name, 100), "name", "field name must be max 100 chars long")
+	params.Check(validator.MatchRegex(params.Email, validator.EmailRegex), "email", "field email must be a valid email address")
+
 	parsedTime, err := time.Parse("2006-01-02T15:04:05-07:00", params.DateOfBirth)
 	if err != nil {
 		log.Printf("error parsing time: ", err)
+	}
+
+	if !params.Valid() {
+		respondWithError(w, http.StatusUnprocessableEntity, "unable to process request")
+		return
 	}
 
 	err = s.users.Insert(models.DatabaseUser{
