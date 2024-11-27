@@ -3,7 +3,6 @@ package server
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/google/uuid"
 	"log"
 	"net/http"
 	"os"
@@ -11,6 +10,8 @@ import (
 	"time"
 	"whalebone-assignment/internal/models"
 	"whalebone-assignment/internal/validator"
+
+	"github.com/google/uuid"
 
 	_ "github.com/joho/godotenv/autoload"
 
@@ -100,7 +101,8 @@ func (s *Server) createUser(w http.ResponseWriter, r *http.Request) {
 		DateOfBirth: parsedTime,
 	})
 	if err != nil {
-		log.Printf("unable to create User: %v", err)
+		respondWithError(w, http.StatusUnprocessableEntity, "unable to process request")
+		return
 	}
 
 	respondWithJSON(w, http.StatusCreated, struct{}{})
@@ -115,7 +117,7 @@ func (s *Server) getUser(w http.ResponseWriter, r *http.Request) {
 
 	user, err := s.users.GetOne(validId)
 	if err != nil {
-		log.Printf("unable to get user from db: %v", err)
+		respondWithError(w, http.StatusNotFound, "user not found")
 	}
 
 	respondWithJSON(w, http.StatusOK, models.DatabaseUserToResponseUser(user))
