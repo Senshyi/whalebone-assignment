@@ -3,6 +3,7 @@ package models
 import (
 	"time"
 
+	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
 
@@ -11,7 +12,7 @@ type UserModel struct {
 }
 
 type DatabaseUser struct {
-	ID          string `gorm:"primarykey"`
+	ID          uuid.UUID `gorm:"primarykey"`
 	CreatedAt   time.Time
 	UpdatedAt   time.Time
 	Name        string
@@ -20,10 +21,10 @@ type DatabaseUser struct {
 }
 
 type ResponseUser struct {
-	ID          string `json:"id"`
-	Name        string `json:"name"`
-	Email       string `json:"email"`
-	DateOfBirth string `json:"date_of_birth"`
+	ID          uuid.UUID `json:"id"`
+	Name        string    `json:"name"`
+	Email       string    `json:"email"`
+	DateOfBirth string    `json:"date_of_birth"`
 }
 
 func DatabaseUserToResponseUser(user DatabaseUser) ResponseUser {
@@ -42,7 +43,7 @@ func (m *UserModel) Insert(user DatabaseUser) error {
 	}
 	return nil
 }
-func (m *UserModel) GetOne(id string) (DatabaseUser, error) {
+func (m *UserModel) GetOne(id uuid.UUID) (DatabaseUser, error) {
 	var user DatabaseUser
 	res := m.Db.First(&user, "Id = ?", id)
 	if res.Error != nil {

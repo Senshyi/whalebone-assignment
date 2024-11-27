@@ -3,6 +3,7 @@ package server
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/google/uuid"
 	"log"
 	"net/http"
 	"os"
@@ -72,13 +73,19 @@ func (s *Server) createUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	validId, err := uuid.Parse(params.ID)
+	if err != nil {
+		log.Printf("Unable to parse UUID: %v", err)
+		params.AddProblem("id", "invalid UUID")
+	}
+
 	params.Check(validator.NotBlank(params.Name), "name", "field name cannot be empty")
 	params.Check(validator.MaxChars(params.Name, 100), "name", "field name must be max 100 chars long")
 	params.Check(validator.MatchRegex(params.Email, validator.EmailRegex), "email", "field email must be a valid email address")
 
 	parsedTime, err := time.Parse("2006-01-02T15:04:05-07:00", params.DateOfBirth)
 	if err != nil {
-		log.Printf("error parsing time: ", err)
+		params.AddProblem("date_of_birth", "field needs to be a valid time")
 	}
 
 	if !params.Valid() {
@@ -87,7 +94,7 @@ func (s *Server) createUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	err = s.users.Insert(models.DatabaseUser{
-		ID:          params.ID,
+		ID:          validId,
 		Name:        params.Name,
 		Email:       params.Email,
 		DateOfBirth: parsedTime,
@@ -100,7 +107,13 @@ func (s *Server) createUser(w http.ResponseWriter, r *http.Request) {
 }
 func (s *Server) getUser(w http.ResponseWriter, r *http.Request) {
 	id := r.PathValue("id")
-	user, err := s.users.GetOne(id)
+
+	validId, err := uuid.Parse(id)
+	if err != nil {
+		respondWithError(w, http.StatusBadRequest, "invalid id")
+	}
+
+	user, err := s.users.GetOne(validId)
 	if err != nil {
 		log.Printf("unable to get user from db: %v", err)
 	}
