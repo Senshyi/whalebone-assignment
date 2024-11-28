@@ -20,7 +20,7 @@ import (
 func createTmpDB(t testing.TB) (database.Service, func()) {
 	t.Helper()
 	dbName := os.Getenv("TEST_DB_URL")
-	print(dbName)
+	println("<<<<<<<<", dbName)
 	service := database.New(dbName)
 	teardown := func() {
 		os.Remove(dbName)
