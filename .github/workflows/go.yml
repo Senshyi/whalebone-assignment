@@ -15,7 +15,8 @@ jobs:
       #   run: go mod download
       - name: Set environment variables
         run: |
-          echo "db URL $TEST_DB_URL"
+          echo "db URL ${{vars.TEST_DB_URL}}"
+          echo "db URL ${{env.TEST_DB_URL}}"
       # - name: Build
       #   run: go build -v cmd/api/main.go
       # - name: Test 
