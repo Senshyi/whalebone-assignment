@@ -14,7 +14,7 @@ type Service struct {
 
 // New creates db connection and runs autoMigrate()
 func New(dbName string) Service {
-	db, err := gorm.Open(sqlite.Open("gorm.db"), &gorm.Config{})
+	db, err := gorm.Open(sqlite.Open(dbName), &gorm.Config{})
 	if err != nil {
 		log.Fatal(err)
 	}

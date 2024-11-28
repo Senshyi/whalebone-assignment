@@ -11,8 +11,6 @@ import (
 	"whalebone-assignment/internal/validator"
 
 	"github.com/google/uuid"
-
-	_ "github.com/joho/godotenv/autoload"
 )
 
 type Server struct {

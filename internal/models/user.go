@@ -31,7 +31,7 @@ func DatabaseUserToResponseUser(user DatabaseUser) ResponseUser {
 	return ResponseUser{
 		ID:          user.ID,
 		Name:        user.Name,
-		Email:       user.Name,
+		Email:       user.Email,
 		DateOfBirth: user.DateOfBirth.Format("2006-01-02T15:04:05-07:00"),
 	}
 }
