@@ -39,6 +39,7 @@ func NewServer() *http.Server {
 		users: &models.UserModel{Db: db},
 	}
 
+	log.Printf("Server is starting on :%d", port)
 	return &http.Server{
 		Addr:         fmt.Sprintf(":%d", NewServer.port),
 		Handler:      NewServer.routes(),
@@ -113,11 +114,13 @@ func (s *Server) getUser(w http.ResponseWriter, r *http.Request) {
 	validId, err := uuid.Parse(id)
 	if err != nil {
 		respondWithError(w, http.StatusBadRequest, "invalid id")
+		return
 	}
 
 	user, err := s.users.GetOne(validId)
 	if err != nil {
 		respondWithError(w, http.StatusNotFound, "user not found")
+		return
 	}
 
 	respondWithJSON(w, http.StatusOK, models.DatabaseUserToResponseUser(user))

@@ -5,6 +5,36 @@ A simple microservice which provides two endpoints.
 # Requirements
 - Go v1.23
 - Docker
+- Make (optional)
+
+# Setup
+from project root copy `.env-example` into `.env`
+```bash
+copy .env-example .env
+```
+
+run one of the `make` commands (see the file for all option)
+```bash
+make run
+```
+
+```bash
+make itest
+```
+
+or you can run it manually
+```bash
+go run cmd/api/main.go
+go build -o main cmd/api/main.go
+```
+
+# Run dockerized application
+There is a docker file prepared in the project root.
+
+```bash
+
+
+```
 
 # Examples
 
