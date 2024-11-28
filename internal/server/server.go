@@ -5,18 +5,14 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"os"
-	"strconv"
 	"time"
+	"whalebone-assignment/internal/database"
 	"whalebone-assignment/internal/models"
 	"whalebone-assignment/internal/validator"
 
 	"github.com/google/uuid"
 
 	_ "github.com/joho/godotenv/autoload"
-
-	"gorm.io/driver/sqlite"
-	"gorm.io/gorm"
 )
 
 type Server struct {
@@ -25,18 +21,11 @@ type Server struct {
 	users *models.UserModel
 }
 
-func NewServer() *http.Server {
-	port, _ := strconv.Atoi(os.Getenv("PORT"))
-	db, err := gorm.Open(sqlite.Open("gorm.db"), &gorm.Config{})
-	if err != nil {
-		panic("failed to connect database")
-	}
-
-	db.AutoMigrate(&models.DatabaseUser{})
+func NewServer(dbService database.Service, port int) *http.Server {
 
 	NewServer := Server{
 		port:  port,
-		users: &models.UserModel{Db: db},
+		users: &models.UserModel{Db: dbService.Db},
 	}
 
 	log.Printf("Server is starting on :%d", port)

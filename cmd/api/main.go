@@ -3,11 +3,15 @@ package main
 import (
 	"context"
 	"fmt"
+	_ "github.com/joho/godotenv/autoload"
 	"log"
 	"net/http"
+	"os"
 	"os/signal"
+	"strconv"
 	"syscall"
 	"time"
+	"whalebone-assignment/internal/database"
 	"whalebone-assignment/internal/server"
 )
 
@@ -29,7 +33,11 @@ func gracefullyShutdown(server *http.Server) {
 }
 
 func main() {
-	server := server.NewServer()
+	port, _ := strconv.Atoi(os.Getenv("PORT"))
+	dbName := os.Getenv("DB_URL")
+
+	dbService := database.New(dbName)
+	server := server.NewServer(dbService, port)
 
 	go gracefullyShutdown(server)
 
