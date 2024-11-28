@@ -18,9 +18,13 @@ RUN CGO_ENABLED=1 go build -o whalebone-assignment cmd/api/main.go
 # ============================================
 # PRODUCTION
 # ============================================
-FROM golang:1.23-bookworm AS production
+# preferably something like `scratch` should be used but because
+# CSO_ENABLE needs to be set to 1 for sqLite it's not possible.
+# For the sake of this demo app, this should do but normally it could
+# and should be size optimized 
+FROM golang:1.23-bookworm AS runner
 
-WORKDIR /prod
+WORKDIR /app
 
 COPY --from=builder /build/whalebone-assignment ./
 
