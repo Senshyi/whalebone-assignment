@@ -20,6 +20,7 @@ import (
 func createTmpDB(t testing.TB) (database.Service, func()) {
 	t.Helper()
 	dbName := os.Getenv("TEST_DB_URL")
+	print(dbName)
 	service := database.New(dbName)
 	teardown := func() {
 		os.Remove(dbName)
@@ -30,10 +31,7 @@ func createTmpDB(t testing.TB) (database.Service, func()) {
 
 func TestGetAndPostUser(t *testing.T) {
 	envPath := filepath.Join("..", "..", ".env")
-	err := godotenv.Load(envPath)
-	if err != nil {
-		t.Fatalf("Error loading .env file: %v", err)
-	}
+	_ = godotenv.Load(envPath)
 
 	createTmpDB(t)
 	dbService, teardown := createTmpDB(t)
